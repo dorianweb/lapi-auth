@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Api\Usercontroller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
@@ -25,10 +25,12 @@ Route::group([
     'middleware' => 'api',
 ], function ($router) {
     Route::get('validate/{token}', [AuthController::class, 'validat']);
-
-    Route::post('token', [AuthController::class, 'login']);
-
+    Route::post('token', [AuthController::class, 'login'])->name('login');
     Route::post('logout',  [AuthController::class, 'logout']);
     Route::get('access_token/refresh',  [AuthController::class, 'refresh']);
     Route::post('user',  [AuthController::class, 'me']);
+
+    Route::post('account',  [Usercontroller::class, 'store']);
+    Route::get('account/{id}',  [Usercontroller::class, 'show']);
+    Route::put('account/{id}',  [Usercontroller::class, 'update']);
 });

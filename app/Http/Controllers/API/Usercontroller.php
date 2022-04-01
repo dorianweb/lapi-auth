@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class Usercontroller extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['index', 'store']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -26,12 +31,19 @@ class Usercontroller extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "id" => 1,
-            "name" => "Brice Stoltenberg",
-            "email" => "guy.johnson@example.net",
-            "email_verified_at" => "2022-04-01T13:36:01.000000Z",
-            "created_at" => "2022-04-01T13:36:01.000000Z",
-            "updated_at" => "2022-04-01T13:36:01.000000Z"
+            "name" => "string",
+            "email" => "string|required",
+            "status" => "integer",
+            "role" => "integer",
+            "password" => "string|required",
+        ]);
+
+        return User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "status" => 1,
+            "role" => $request->role,
+            "password" => bcrypt($request->password),
         ]);
     }
 
@@ -43,7 +55,10 @@ class Usercontroller extends Controller
      */
     public function show($id)
     {
-        //
+        if (auth()->user()->role == 1)
+            return auth()->user();
+
+        return User::findOrFail($id);
     }
 
     /**
@@ -55,7 +70,26 @@ class Usercontroller extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
+        $request->validate([
+            "name" => "string",
+            "email" => "string",
+            "password" => "string",
+            "role" => "integer",
+            "status" => "integer"
+
+        ]);
+
+        $user  = User::find($id);
+        $user->name = $request->name;
+        if (auth()->user()->role == 2) {
+
+            $user->role = $request->role;
+        }
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return $user;
     }
 
     /**
